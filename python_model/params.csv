@@ -1,0 +1,5 @@
+parameter,category,description,value
+t_max,hyper,no. iterations of the simulation,
+x_size,tissue,,
+y_size,tissue,,
+Pm,tissue,the probability of movement per cell per time step,
