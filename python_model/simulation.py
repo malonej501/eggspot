@@ -25,7 +25,7 @@ class Simulation(Tissue):
             # Store coordinates in 3D array, where each element is a 2D array containing x and y coordinate array for each timepoint
             self.frames[t, 0, :] = x_coords
             self.frames[t, 1, :] = y_coords
-            self.tissue.diffuse()
+            self.tissue.update()
 
     def update_frame(self, frame):
         x_coords = self.frames[frame, 0, :]
