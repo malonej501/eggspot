@@ -4,40 +4,37 @@ import matplotlib.pyplot as plt
 
 class Cell:
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, kind):
         self.x = x
         self.y = y  # each cell has a coordinate in 2D space
+        self.kind = kind  # the cell type
 
 
 class Tissue(Cell):
-    def __init__(self, x_size, y_size):
-        self.x_size = x_size
-        self.y_size = y_size
-        self.n_cell = (
-            x_size * y_size
-        )  # initialise as many cells as points on the lattice
-        self.lattice = np.empty(self.n_cell, dtype=object)
+    def __init__(self, n_cell):
+        self.n_cell = n_cell
+        self.cells = np.empty(self.n_cell, dtype=object)
         self.Pm = 1  # the probability of movement per time step for each cell
 
-        # load coordinates
-        for i in range(self.n_cell):
-            x = i // self.y_size
-            y = i % self.x_size
-            self.lattice[i] = Cell(x, y)
+        self.initialise_cell_placement_gaussian()
 
-    def print_lattice(self):
-        disp = np.empty((self.x_size, self.y_size), dtype=object)
-        for i, cell in enumerate(self.lattice):
-            x = i // self.y_size
-            y = i % self.x_size
-            disp[x, y] = (cell.x, cell.y)
-        print(disp)
+    def initialise_cell_placement_gaussian(self):
+        center = 0
+        stdev = (
+            self.n_cell / 10
+        )  # set the stdev of the gaussian to 1/4 the number of cells to be initialised
+        occupied_positions = set()
+        while len(occupied_positions) < self.n_cell:
+            x, y = np.random.normal(loc=0, scale=self.n_cell / 4, size=2)
+            if (x, y) not in occupied_positions:
+                occupied_positions.add((x, y))
+                self.cells[len(occupied_positions) - 1] = Cell(x, y, "def")
 
     def get_coords(self):
-        # Extract coordinates from the lattice
+        # Extract coordinates from the cells
         x_coords = []
         y_coords = []
-        for cell in self.lattice:
+        for cell in self.cells:
             x_coords.append(cell.x)
             y_coords.append(cell.y)
         return np.array(x_coords), np.array(y_coords)
@@ -49,8 +46,8 @@ class Tissue(Cell):
 
     def diffuse(self):
         # keep track of which coordinates are occupied
-        occupied_positions = {(cell.x, cell.y) for cell in self.lattice}
-        for i, cell in enumerate(self.lattice):
+        occupied_positions = {(cell.x, cell.y) for cell in self.cells}
+        for i, cell in enumerate(self.cells):
             # Initialise proposal coordinates
             prop_x = cell.x
             prop_y = cell.y
