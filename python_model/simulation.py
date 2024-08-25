@@ -4,7 +4,7 @@ import matplotlib.animation as animation
 from tissue import Tissue
 
 
-class Simulation(Tissue):
+class Simulation:
 
     def __init__(self, t_max, n_cell, view=None):
         self.t_max = t_max
@@ -15,7 +15,15 @@ class Simulation(Tissue):
         self.scat = self.ax.scatter(
             [], [], s=3
         )  # initialise scatterplot for viewing, set size of points
-        self.view = view
+        self.frame_text = self.ax.text(
+            0.05,
+            0.95,
+            "",
+            transform=self.ax.transAxes,
+            fontsize=12,
+            verticalalignment="top",
+        )
+        self.view = view  # fix the axes limits or adapt to spread of cells
 
     def run(self):
         # diffuse the cells for t_max iterations
@@ -41,7 +49,10 @@ class Simulation(Tissue):
             self.ax.set_xlim(-500, 500)
             self.ax.set_ylim(-500, 500)
 
-        return (self.scat,)
+        # Update frame counter text
+        self.frame_text.set_text(f"Frame: {frame + 1}/{self.t_max}")
+
+        return (self.scat, self.frame_text)
 
     def animate(self):
         ani = animation.FuncAnimation(
