@@ -14,7 +14,7 @@ class Tissue:
     def initialise_cell_placement_gaussian(self):
         center = 0
         stdev = (
-            self.n_cell / 15
+            self.n_cell / 20
         )  # set the stdev of the gaussian to 1/4 the number of cells to be initialised
         occupied_positions = set()
         while len(occupied_positions) < self.n_cell:
@@ -61,24 +61,6 @@ class Tissue:
             nbhd = self.get_cell_neighbourhood(cell, occupied_positions, cell.nbhd_dist)
             prop_x, prop_y = cell.diffuse()
             prop_x, prop_y = cell.find_best_move(prop_x, prop_y, nbhd)
-            # # Initialise proposal coordinates
-            # prop_x = cell.x
-            # prop_y = cell.y
-            # r1 = np.random.uniform(0, 1)
-            # # Simulate equal propensity in every direction, in 2D there are 4 possible directions
-            # # Therefore divide the probability space evenly by 4
-            # if 0 <= r1 < self.Pm / 4:
-            #     prop_y += 1  # move up
-            # elif self.Pm / 4 <= r1 < self.Pm / 2:
-            #     prop_x += 1  # move right
-            # elif self.Pm / 2 <= r1 < self.Pm / 2 + self.Pm / 4:
-            #     prop_y -= 1  # move down
-            # elif self.Pm / 2 + self.Pm / 4 <= r1 <= 1:
-            #     prop_x -= 1  # move left
-            # else:
-            #     raise RuntimeError(
-            #         f"Unexpected condition encountered with r1 = {r1}. Check the probability logic."
-            #     )
 
             # only one cell can occupy each coordinate at any timepoint
             if (prop_x, prop_y) not in nbhd:
@@ -86,3 +68,10 @@ class Tissue:
                 cell.x = prop_x
                 cell.y = prop_y
                 occupied_positions.add((cell.x, cell.y))
+
+            new_x, new_y = cell.divide()
+
+            if new_x and new_y and (new_x, new_y) not in nbhd:
+                self.cells = np.append(self.cells, Cell(new_x, new_y))
+                occupied_positions.add((new_x, new_y))
+                self.n_cell += 1

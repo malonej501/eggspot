@@ -10,7 +10,7 @@ class Simulation:
         self.t_max = t_max
         self.tissue = Tissue(n_cell)  # initialise the tissue already
         # for animating the tissue
-        self.frames = np.zeros((self.t_max, 2, self.tissue.n_cell))
+        self.frames = []
         self.fig, self.ax = plt.subplots()
         self.scat = self.ax.scatter(
             [], [], s=3
@@ -28,16 +28,18 @@ class Simulation:
     def run(self):
         # diffuse the cells for t_max iterations
         for t in range(self.t_max):
+            print(f"Frame: {t}\tn_cell: {self.tissue.n_cell}")
             # self.tissue.plot_tissue()
             x_coords, y_coords = self.tissue.get_coords()
-            # Store coordinates in 3D array, where each element is a 2D array containing x and y coordinate array for each timepoint
-            self.frames[t, 0, :] = x_coords
-            self.frames[t, 1, :] = y_coords
+            # Store coordinates in a list of tuples
+            self.frames.append((x_coords, y_coords))
+            self.frames.append((x_coords, y_coords))
             self.tissue.update()
 
     def update_frame(self, frame):
-        x_coords = self.frames[frame, 0, :]
-        y_coords = self.frames[frame, 1, :]
+        x_coords, y_coords = self.frames[
+            frame
+        ]  # retrieve coordinates for current frame
 
         self.scat.set_offsets(np.column_stack((x_coords, y_coords)))
 
@@ -65,7 +67,7 @@ class Simulation:
 
 
 def runsim():
-    s1 = Simulation(t_max=300, n_cell=300, view="tight")
+    s1 = Simulation(t_max=300, n_cell=200, view="tight")
     s1.run()
     # print(s1.frames)
     s1.animate()

@@ -8,6 +8,7 @@ class Cell:
         self.y = y  # each cell has a coordinate in 2D space
         self.nbhd_dist = 20
         self.Pm = 1  # the probability of movement per time step for each cell
+        self.Pr = 0.007  # the probability of division per time step per cell
 
     def diffuse(self):
         """Propose new coordinates"""
@@ -30,6 +31,28 @@ class Cell:
                 f"Unexpected condition encountered with r1 = {r1}. Check the probability logic."
             )
         return prop_x, prop_y
+
+    def divide(self):
+        """Spawn a new cell ajacent with given proability"""
+        r1 = np.random.uniform(0, 1)
+
+        new_x, new_y = None, None
+
+        if r1 < self.Pr:
+            if 0 <= r1 < self.Pr / 4:  # spawn up
+                new_x = self.x
+                new_y = self.y + 1
+            elif self.Pr / 4 <= r1 < self.Pr / 2:  # spawn right
+                new_x = self.x + 1
+                new_y = self.y
+            elif self.Pr / 4 <= r1 < self.Pr / 2:  # spawn down
+                new_x = self.x
+                new_y = self.y - 1
+            elif self.Pr / 2 <= r1 < self.Pr / 2 + self.Pr / 4:  # spawn left
+                new_x = self.x - 1
+                new_y = self.y
+
+        return new_x, new_y
 
     def calculate_energy(self, pos, nbhd):
         """Calculate the energy of a position based on its neighbouring cells"""
