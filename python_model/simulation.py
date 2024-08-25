@@ -65,7 +65,7 @@ class Simulation:
 
 
 def runsim():
-    s1 = Simulation(t_max=300, n_cell=300)
+    s1 = Simulation(t_max=300, n_cell=300, view="tight")
     s1.run()
     # print(s1.frames)
     s1.animate()
