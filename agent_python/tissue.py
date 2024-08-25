@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.spatial import KDTree
 import matplotlib.pyplot as plt
-from cell import Cell
+from cell import Cell, Iridophore, Xanthophore
 
 
 class Tissue:
@@ -18,11 +18,17 @@ class Tissue:
         )  # set the stdev of the gaussian to 1/4 the number of cells to be initialised
         occupied_positions = set()
         while len(occupied_positions) < self.n_cell:
+            r1 = np.random.uniform(0, 1)  # decide cell type
             x, y = np.random.normal(loc=0, scale=self.n_cell / 4, size=2)
             x, y = np.round(x).astype(int), np.round(y).astype(int)
             if (x, y) not in occupied_positions:
                 occupied_positions.add((x, y))
-                self.cells[len(occupied_positions) - 1] = Cell(x, y)
+                if r1 < 0.5:
+                    self.cells[len(occupied_positions) - 1] = Iridophore(
+                        x, y
+                    )  # add iridophores
+                elif r1 >= 0.5:
+                    self.cells[len(occupied_positions) - 1] = Xanthophore(x, y)
 
     def get_cell_neighbourhood(self, cell, occupied_positions, nbhd_dist):
         """get coords of other cells within nbhd_dist radius efficiently with KDTree"""
@@ -44,10 +50,12 @@ class Tissue:
         # Extract coordinates from the cells
         x_coords = []
         y_coords = []
+        cell_types = []
         for cell in self.cells:
             x_coords.append(cell.x)
             y_coords.append(cell.y)
-        return np.array(x_coords), np.array(y_coords)
+            cell_types.append(type(cell).__name__)
+        return np.array(x_coords), np.array(y_coords), np.array(cell_types)
 
     def plot_tissue(self):
         x_coords, y_coords = self.get_coords()

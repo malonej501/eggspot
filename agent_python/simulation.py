@@ -13,8 +13,9 @@ class Simulation:
         self.frames = []
         self.fig, self.ax = plt.subplots()
         self.scat = self.ax.scatter(
-            [], [], s=3
+            [], [], c=[], s=3
         )  # initialise scatterplot for viewing, set size of points
+        self.color_map = {"Iridophore": "blue", "Xanthophore": "red"}
         self.frame_text = self.ax.text(
             0.05,
             0.95,
@@ -30,18 +31,20 @@ class Simulation:
         for t in range(self.t_max):
             print(f"Frame: {t}\tn_cell: {self.tissue.n_cell}")
             # self.tissue.plot_tissue()
-            x_coords, y_coords = self.tissue.get_coords()
-            # Store coordinates in a list of tuples
-            self.frames.append((x_coords, y_coords))
-            self.frames.append((x_coords, y_coords))
+            x_coords, y_coords, cell_types = self.tissue.get_coords()
+            # Store coordinates and cell types in a list of tuples
+            self.frames.append((x_coords, y_coords, cell_types))
             self.tissue.update()
 
     def update_frame(self, frame):
-        x_coords, y_coords = self.frames[
+        x_coords, y_coords, cell_types = self.frames[
             frame
-        ]  # retrieve coordinates for current frame
+        ]  # retrieve coordinates and cell types for current frame
 
         self.scat.set_offsets(np.column_stack((x_coords, y_coords)))
+        self.scat.set_color(
+            np.array([self.color_map[cell_type] for cell_type in cell_types])
+        )
 
         if self.view == "tight":
             # Update axis limits to fit data
@@ -67,7 +70,7 @@ class Simulation:
 
 
 def runsim():
-    s1 = Simulation(t_max=300, n_cell=200, view="tight")
+    s1 = Simulation(t_max=200, n_cell=200, view="tight")
     s1.run()
     # print(s1.frames)
     s1.animate()

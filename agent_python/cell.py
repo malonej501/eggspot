@@ -8,7 +8,7 @@ class Cell:
         self.y = y  # each cell has a coordinate in 2D space
         self.nbhd_dist = 20
         self.Pm = 1  # the probability of movement per time step for each cell
-        self.Pr = 0.007  # the probability of division per time step per cell
+        self.Pr = 0  # 0.007  # the probability of division per time step per cell
 
     def diffuse(self):
         """Propose new coordinates"""
@@ -45,22 +45,22 @@ class Cell:
             elif self.Pr / 4 <= r1 < self.Pr / 2:  # spawn right
                 new_x = self.x + 1
                 new_y = self.y
-            elif self.Pr / 4 <= r1 < self.Pr / 2:  # spawn down
+            elif self.Pr / 2 <= r1 < self.Pr / 2 + self.Pr / 4:  # spawn down
                 new_x = self.x
                 new_y = self.y - 1
-            elif self.Pr / 2 <= r1 < self.Pr / 2 + self.Pr / 4:  # spawn left
+            elif self.Pm / 2 + self.Pm / 4 <= r1 <= 1:  # spawn left
                 new_x = self.x - 1
                 new_y = self.y
 
         return new_x, new_y
 
     def calculate_energy(self, pos, nbhd):
-        """Calculate the energy of a position based on its neighbouring cells"""
+        """Calculate the energy of a position based on its neighbouring cells - default behaviour"""
         total_energy = 0
         for n in nbhd:
             dist = np.linalg.norm(np.array(pos) - np.array(n))
             if dist > 0:  # Avoid division by zero
-                total_energy += 1 * dist  # Energy is proportional to distance
+                total_energy += 0  # Energy is proportional to distance
         return total_energy
 
     def find_best_move(self, prop_x, prop_y, nbhd):
@@ -93,12 +93,25 @@ class Iridophore(Cell):
     def __init__(self, x, y):
         super().__init__(x, y)
 
-    # def activate(self):
-    #     # iridophores diffuse but also attract themselves, therefore need a different movement function
-    #     prop_x = self.x
-    #     prop_y = self.y
+    def calculate_energy(self, pos, nbhd):
+        """Calculate the energy of a position based on its neighbouring cells"""
+        total_energy = 0
+        for n in nbhd:
+            dist = np.linalg.norm(np.array(pos) - np.array(n))
+            if dist > 0:  # Avoid division by zero
+                total_energy += 1 * dist  # Energy is proportional to distance
+        return total_energy
 
 
 class Xanthophore(Cell):
     def __init__(self, x, y):
         super().__init__(x, y)
+
+    def calculate_energy(self, pos, nbhd):
+        """Calculate the energy of a position based on its neighbouring cells"""
+        total_energy = 0
+        for n in nbhd:
+            dist = np.linalg.norm(np.array(pos) - np.array(n))
+            if dist > 0:  # Avoid division by zero
+                total_energy += 1 / dist  # Energy is proportional to distance
+        return total_energy
