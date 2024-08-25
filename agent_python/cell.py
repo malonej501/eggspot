@@ -8,7 +8,7 @@ class Cell:
         self.y = y  # each cell has a coordinate in 2D space
         self.nbhd_dist = 20
         self.Pm = 1  # the probability of movement per time step for each cell
-        self.Pr = 0  # 0.007  # the probability of division per time step per cell
+        self.Pr = 0.007  # the probability of division per time step per cell
 
     def diffuse(self):
         """Propose new coordinates"""
@@ -50,7 +50,7 @@ class Cell:
             elif self.Pr / 2 <= r1 < self.Pr / 2 + self.Pr / 4:  # spawn down
                 new_x = self.x
                 new_y = self.y - 1
-            elif self.Pm / 2 + self.Pm / 4 <= r1 <= 1:  # spawn left
+            elif self.Pr / 2 + self.Pr / 4 <= r1 <= 1:  # spawn left
                 new_x = self.x - 1
                 new_y = self.y
 
@@ -82,7 +82,7 @@ class Cell:
             energy_for_moves = {}
             for direction, new_position in moves.items():
                 energy_for_moves[direction] = self.calculate_energy(new_position, nbhd)
-
+            # print(energy_for_moves.get)
             if any(
                 value != 0 for value in energy_for_moves.values()
             ):  # only move if the calculate energy is greater than 0
@@ -117,14 +117,14 @@ class Xanthophore(Cell):
         """Calculate the energy of a position based on its neighbouring cells"""
         total_energy = 0
         for n in nbhd:
-            if n[2] == Melanophore or n[2] == Erythrophore:  # interacts with M and E
-                dist = np.linalg.norm(np.array(pos) - np.array((n[0], n[1])))
-                if dist > 0:  # Avoid division by zero
-                    total_energy += 1 / dist  # Energy is proportional to distance
-            # if n[2] == Iridophore:  # interacts with I
+            # if n[2] == Melanophore or n[2] == Erythrophore:  # interacts with M and E
             #     dist = np.linalg.norm(np.array(pos) - np.array((n[0], n[1])))
             #     if dist > 0:  # Avoid division by zero
-            #         total_energy += 1 * dist  # Energy is proportional to distance
+            #         total_energy += 1 / dist  # Energy is proportional to distance
+            if n[2] == Iridophore:  # interacts with I
+                dist = np.linalg.norm(np.array(pos) - np.array((n[0], n[1])))
+                if dist > 0:  # Avoid division by zero
+                    total_energy += 1 * dist  # Energy is proportional to distance
         return total_energy
 
 
@@ -132,7 +132,25 @@ class Melanophore(Cell):
     def __init__(self, x, y):
         super().__init__(x, y)
 
+    def calculate_energy(self, pos, nbhd):
+        total_energy = 0
+        for n in nbhd:
+            if n[2] == Iridophore:  # interacts with I
+                dist = np.linalg.norm(np.array(pos) - np.array((n[0], n[1])))
+                if dist > 0:  # Avoid division by zero
+                    total_energy += 1 / dist  # Energy is proportional to distance
+        return total_energy
+
 
 class Erythrophore(Cell):
     def __init__(self, x, y):
         super().__init__(x, y)
+
+    def calculate_energy(self, pos, nbhd):
+        total_energy = 0
+        for n in nbhd:
+            if n[2] == Iridophore:
+                dist = np.linalg.norm(np.array(pos) - np.array((n[0], n[1])))
+                if dist > 0:
+                    total_energy += 1 / dist
+        return total_energy

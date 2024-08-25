@@ -8,7 +8,7 @@ from cell import Xanthophore, Iridophore, Melanophore, Erythrophore
 
 class Simulation:
 
-    def __init__(self, t_max, n_cell, view=None):
+    def __init__(self, t_max, n_cell, view="fixed"):
         self.t_max = t_max
         self.tissue = Tissue(n_cell)  # initialise the tissue already
         # for animating the tissue
@@ -66,12 +66,14 @@ class Simulation:
             # Update axis limits to fit data
             self.ax.set_xlim(np.min(x_coords) - 1, np.max(x_coords) + 1)
             self.ax.set_ylim(np.min(y_coords) - 1, np.max(y_coords) + 1)
-        if self.view is None:
-            self.ax.set_xlim(-500, 500)
-            self.ax.set_ylim(-500, 500)
+        if self.view == "fixed":
+            self.ax.set_xlim(-200, 200)
+            self.ax.set_ylim(-200, 200)
 
         # Update frame counter text
-        self.frame_text.set_text(f"Frame: {frame + 1}/{self.t_max}")
+        self.frame_text.set_text(
+            f"Frame: {frame + 1}/{self.t_max}\nNo. cells: {len(cell_types)}"
+        )
 
         return (self.scat, self.frame_text)
 
@@ -83,10 +85,14 @@ class Simulation:
             interval=100,
         )
         plt.show()
+        writer = animation.PillowWriter(
+            fps=15, metadata=dict(artist="Me"), bitrate=1800
+        )
+        ani.save("Frames.gif", writer=writer)
 
 
 def runsim():
-    s1 = Simulation(t_max=200, n_cell=200, view="tight")
+    s1 = Simulation(t_max=200, n_cell=200, view="fixed")
     s1.run()
     # print(s1.frames)
     s1.animate()

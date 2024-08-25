@@ -88,7 +88,7 @@ class Tissue:
             prop_x, prop_y = cell.diffuse()
             prop_x, prop_y = cell.find_best_move(prop_x, prop_y, nbhd)
 
-            # only add cell or move cell if proposed position is unoccupied
+            # only move cell if proposed position is unoccupied
             if not self.pos_occupied(nbhd, prop_x, prop_y):
                 occupied_positions.remove((cell.x, cell.y, type(cell)))
                 cell.x = prop_x
@@ -104,3 +104,7 @@ class Tissue:
                     self.cells = np.append(self.cells, new_cell_type(new_x, new_y))
                     occupied_positions.add((new_x, new_y, new_cell_type))
                     self.n_cell += 1
+                # if self.pos_occupied(nbhd, new_x, new_y):
+
+            # adjust cell positions to ensure one cell per site
+            # while
