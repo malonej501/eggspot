@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import matplotlib.patches as mpatches
 from tissue import Tissue
+from cell import Xanthophore, Iridophore, Melanophore, Erythrophore
 
 
 class Simulation:
@@ -15,7 +17,21 @@ class Simulation:
         self.scat = self.ax.scatter(
             [], [], c=[], s=3
         )  # initialise scatterplot for viewing, set size of points
-        self.color_map = {"Iridophore": "blue", "Xanthophore": "red"}
+        self.color_map = {
+            Iridophore: "blue",
+            Xanthophore: "red",
+            Melanophore: "black",
+            Erythrophore: "orange",
+        }
+        self.ax.legend(
+            handles=[
+                mpatches.Patch(color="blue", label="Iridophore"),
+                mpatches.Patch(color="red", label="Xanthophore"),
+                mpatches.Patch(color="black", label="Melanophore"),
+                mpatches.Patch(color="orange", label="Erythrophore"),
+            ],
+            loc="upper right",
+        )
         self.frame_text = self.ax.text(
             0.05,
             0.95,
